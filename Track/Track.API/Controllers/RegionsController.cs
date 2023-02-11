@@ -63,6 +63,14 @@ namespace Track.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddRegionAsync(Models.DTO.AddRegionRequest regionrequest)
         {
+
+            //validate request
+
+            if (!ValidateAddRegionAsync(regionrequest))
+            {
+                return BadRequest(ModelState);
+            }
+
             //Reqest DTO to Domain Model
             var region = new Models.Domain.Region()
             {
@@ -140,6 +148,48 @@ namespace Track.API.Controllers
 
             return Ok(regionDTO);
 
+        }
+        
+        private bool ValidateAddRegionAsync(Models.DTO.AddRegionRequest regionrequest)
+        {
+            if(regionrequest == null)
+            {
+                ModelState.AddModelError(nameof(regionrequest.Code),
+                    $"Add Region data is required");
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(regionrequest.Code))
+            {
+                ModelState.AddModelError(nameof(regionrequest.Code),
+                    $"{nameof(regionrequest.Code)} cannot be null or empty");
+            }
+            if (string.IsNullOrWhiteSpace(regionrequest.Name))
+            {
+                ModelState.AddModelError(nameof(regionrequest.Name),
+                    $"{nameof(regionrequest.Name)} cannot be null or empty");
+            }
+            if (regionrequest.Area <=0)
+            {
+                ModelState.AddModelError(nameof(regionrequest.Area),
+                    $"{nameof(regionrequest.Area)} cannot be less than  or equal to zero");
+            }
+
+            if (regionrequest.Long <= 0)
+            {
+                ModelState.AddModelError(nameof(regionrequest.Long),
+                    $"{nameof(regionrequest.Long)} cannot be less than  or equal to zero");
+            }
+            if (regionrequest.Population < 0)
+            {
+                ModelState.AddModelError(nameof(regionrequest.Population),
+                    $"{nameof(regionrequest.Population)} cannot be less than  zero");
+            }
+
+            if(ModelState.ErrorCount > 0)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }
